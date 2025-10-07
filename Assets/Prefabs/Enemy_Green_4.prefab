@@ -104,7 +104,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09cfa186495942340b866d7199663c11, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 3
+  moveSpeed: 2
   followPlayer: 1
   maxDeviationDeg: 12
 --- !u!58 &2251895558877104672
