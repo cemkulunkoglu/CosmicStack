@@ -73,4 +73,10 @@ public class PlayerHealth : MonoBehaviour
             healthBar.value = CurrentHealth;
         }
     }
+
+    public void ResetHealth()
+    {
+        CurrentHealth = maxHealth;
+    }
+
 }

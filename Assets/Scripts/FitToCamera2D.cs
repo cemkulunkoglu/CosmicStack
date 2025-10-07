@@ -40,4 +40,9 @@ public class FitToCamera2D : MonoBehaviour
         transform.localScale = new Vector3(s, s, 1f);
         transform.position = new Vector3(cam.transform.position.x, cam.transform.position.y, 0f);
     }
+
+    public void Refit()
+    {
+        FitNow();
+    }
 }

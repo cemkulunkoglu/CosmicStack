@@ -3,19 +3,35 @@ using UnityEngine;
 public class Spawner : MonoBehaviour
 {
     [Header("Spawn Ayarlarý")]
-    public GameObject[] spawnObjects;
     public float spawnInterval = 1.5f;
     public float spawnXRange = 2.5f;
-    public float spawnY = 6f; 
+    public float spawnY = 6f;
 
-    void Start()
+    GameObject[] spawnObjects = System.Array.Empty<GameObject>();
+    bool running;
+
+    public void SetSpawnList(GameObject[] list, float interval)
     {
-        InvokeRepeating(nameof(SpawnRandomObject), 1f, spawnInterval);
+        spawnObjects = list ?? System.Array.Empty<GameObject>();
+        spawnInterval = interval;
+    }
+
+    public void StartSpawning(float delay = 0.5f)
+    {
+        running = true;
+        CancelInvoke(nameof(SpawnRandomObject));
+        InvokeRepeating(nameof(SpawnRandomObject), delay, spawnInterval);
+    }
+
+    public void StopSpawning()
+    {
+        running = false;
+        CancelInvoke(nameof(SpawnRandomObject));
     }
 
     void SpawnRandomObject()
     {
-        if (spawnObjects.Length == 0) return;
+        if (!running || spawnObjects == null || spawnObjects.Length == 0) return;
 
         int randomIndex = Random.Range(0, spawnObjects.Length);
         GameObject prefab = spawnObjects[randomIndex];
