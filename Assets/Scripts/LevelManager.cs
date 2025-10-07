@@ -20,13 +20,21 @@ public class LevelManager : MonoBehaviour
     public GameObject[] level1Enemies, level2Enemies, level3Enemies, level4Enemies, level5Enemies;
     public float[] spawnIntervals = { 1.5f, 1.3f, 1.1f, 0.9f, 0.8f };
 
+    [Header("Level Completed UI")]
+    public GameObject completePanel;
+    public TMP_Text completeText;
+    public bool clickAnywhereToContinue = true;
+
     int currentLevel;
+    bool waitingContinue = false;
 
     void Awake()
     {
         if (!levelTimer) levelTimer = FindFirstObjectByType<LevelTimer>();
         if (levelTimer) levelTimer.onTimerFinished.AddListener(OnLevelFinished);
         else Debug.LogError("LevelManager: LevelTimer atanmadı!");
+
+        if (completePanel) completePanel.SetActive(false);
 
         currentLevel = Mathf.Clamp(PlayerPrefs.GetInt("last_level", 1), 1, maxLevels);
         SetupLevel(currentLevel);
@@ -106,15 +114,59 @@ public class LevelManager : MonoBehaviour
 
     public void OnLevelFinished()
     {
+        ShowComplete();
+    }
+
+    void ShowComplete()
+    {
         if (spawner) spawner.StopSpawning();
+        if (levelTimer) levelTimer.PauseTimer();
+
+        if (completePanel)
+        {
+            completePanel.SetActive(true);
+            completePanel.transform.SetAsLastSibling();
+
+            var btn = completePanel.GetComponentInChildren<Button>(true);
+            if (btn)
+            {
+                btn.onClick.RemoveAllListeners();
+                btn.onClick.AddListener(NextLevel);
+            }
+        }
+
+        if (completeText)
+            completeText.text = (currentLevel >= maxLevels)
+                ? "ALL LEVELS COMPLETED!"
+                : $"LEVEL {currentLevel} COMPLETED";
+
+        waitingContinue = true;
+    }
+
+    public void NextLevel()
+    {
+        if (!waitingContinue) return;
+        waitingContinue = false;
+
+        if (completePanel) completePanel.SetActive(false);
+
+        if (currentLevel >= maxLevels)
+        {
+            currentLevel = 1;
+            PlayerPrefs.SetInt("last_level", currentLevel);
+            PlayerPrefs.Save();
+
+            SetupLevel(currentLevel);
+            ShowTap();
+            return;
+        }
 
         currentLevel = Mathf.Min(currentLevel + 1, maxLevels);
         PlayerPrefs.SetInt("last_level", currentLevel);
         PlayerPrefs.Save();
 
         SetupLevel(currentLevel);
-
-        StartCoroutine(OpenTapNextFrame());
+        ShowTap();
     }
 
     IEnumerator OpenTapNextFrame() { yield return null; ShowTap(); }
@@ -127,9 +179,8 @@ public class LevelManager : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.T)) ShowTap();    
+        if (Input.GetKeyDown(KeyCode.T)) ShowTap();
         if (Input.GetKeyDown(KeyCode.Y)) StartLevel();
-
 
         if (Input.GetKeyDown(KeyCode.R))
         {
@@ -140,12 +191,16 @@ public class LevelManager : MonoBehaviour
                 UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex
             );
         }
+
+        if (waitingContinue && clickAnywhereToContinue &&
+            (Input.GetMouseButtonDown(0) || Input.touchCount > 0))
+        {
+            NextLevel();
+        }
     }
 
     public void OnTimerFinished()
     {
-        if (spawner) spawner.StopSpawning();
-        ShowTap();
+        OnLevelFinished();
     }
-
 }
