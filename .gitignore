@@ -1,0 +1,31 @@
+# ========== UNITY GENERATED FILES ==========
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+UserSettings/
+MemoryCaptures/
+*.unitypackage
+
+# ========== IDE / TOOLING ==========
+.vs/
+.idea/
+*.csproj
+*.sln
+*.user
+*.userprefs
+
+# ========== OS / SYSTEM FILES ==========
+.DS_Store
+Thumbs.db
+
+# ========== CACHE / LOCAL ==========
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
