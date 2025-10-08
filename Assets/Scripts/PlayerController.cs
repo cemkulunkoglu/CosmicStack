@@ -9,7 +9,7 @@ public class PlayerControllerFull : MonoBehaviour
     [Header("Dikey Limit (küçük bant)")]
     public bool useStartYAsCenter = true;
     public float yCenter = -3.2f;
-    public float yRange = 0.6f; 
+    public float yRange = 0.6f;
     public float yFollowSpeed = 6f;
     [Range(0f, 1f)] public float yFollowFactor = 0.5f;
 
@@ -34,6 +34,12 @@ public class PlayerControllerFull : MonoBehaviour
 
     void Update()
     {
+        if (!LevelManager.IsPlaying)
+        {
+            SetFlame(false);
+            return;
+        }
+
         isDragging = false;
 
 #if UNITY_EDITOR || UNITY_STANDALONE

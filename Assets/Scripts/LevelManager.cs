@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 public class LevelManager : MonoBehaviour
 {
+    public static bool IsPlaying { get; private set; } = false;
+
     [Header("Bağlantılar")]
     public LevelTimer levelTimer;
     public PlayerHealth playerHealth;
@@ -81,7 +83,8 @@ public class LevelManager : MonoBehaviour
         var go = FindFirstObjectByType<GameOverUI>();
         if (go && go.gameOverPanel && go.gameOverPanel.activeSelf) go.gameOverPanel.SetActive(false);
 
-        Time.timeScale = 1f;
+        Time.timeScale = 0f;
+        IsPlaying = false;
 
         if (pickupSpawner) pickupSpawner.StopSpawning();
 
@@ -118,7 +121,8 @@ public class LevelManager : MonoBehaviour
         if (tapText) tapText.enabled = true;
 
         if (levelTimer) levelTimer.PauseTimer();
-        Time.timeScale = 1f;
+        Time.timeScale = 0f;
+        IsPlaying = false;
     }
 
     public void StartLevel()
@@ -127,6 +131,9 @@ public class LevelManager : MonoBehaviour
 
         if (tapPanel) tapPanel.SetActive(false);
         if (tapText) tapText.enabled = false;
+
+        Time.timeScale = 1f;
+        IsPlaying = true;
 
         if (IsBossLevel(currentLevel))
         {
@@ -181,6 +188,9 @@ public class LevelManager : MonoBehaviour
     {
         if (spawner) spawner.StopSpawning();
         if (levelTimer) levelTimer.PauseTimer();
+
+        Time.timeScale = 0f;
+        IsPlaying = false;
 
         PlayLevelCompleteSfx();
 
@@ -251,6 +261,7 @@ public class LevelManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.R))
         {
             Time.timeScale = 1f;
+            IsPlaying = true;
             PlayerPrefs.SetInt("last_level", 1);
             PlayerPrefs.Save();
             UnityEngine.SceneManagement.SceneManager.LoadScene(

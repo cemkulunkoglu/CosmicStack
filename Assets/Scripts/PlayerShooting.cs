@@ -28,6 +28,8 @@ public class PlayerShooting : MonoBehaviour
 
     void Update()
     {
+        if (!LevelManager.IsPlaying) return;
+
 #if UNITY_EDITOR || UNITY_STANDALONE
         if (Input.GetMouseButtonDown(1))
             Fire();
