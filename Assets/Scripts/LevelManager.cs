@@ -26,8 +26,21 @@ public class LevelManager : MonoBehaviour
     public TMP_Text completeText;
     public bool clickAnywhereToContinue = true;
 
+    [Header("UI SFX")]
+    public AudioClip tapSfx;
+    [Range(0f, 1f)] public float tapVolume = 0.8f;
+    public AudioClip levelCompleteSfx;
+    [Range(0f, 1f)] public float levelCompleteVolume = 0.9f;
+
+    [Header("Boss")]
+    public GameObject bossPrefab;
+    public int bossLevelIndex = 5;
+    GameObject bossInstance;
+
     int currentLevel;
     bool waitingContinue = false;
+
+    bool IsBossLevel(int level) => level == bossLevelIndex;
 
     void Awake()
     {
@@ -71,6 +84,8 @@ public class LevelManager : MonoBehaviour
         Time.timeScale = 1f;
 
         if (pickupSpawner) pickupSpawner.StopSpawning();
+
+        if (bossInstance) { Destroy(bossInstance); bossInstance = null; }
     }
 
     GameObject[] GetEnemiesForLevel(int level) => level switch
@@ -108,13 +123,52 @@ public class LevelManager : MonoBehaviour
 
     public void StartLevel()
     {
+        PlayTapSfx();
+
         if (tapPanel) tapPanel.SetActive(false);
         if (tapText) tapText.enabled = false;
 
-        if (levelTimer) { levelTimer.ResetTimer(); levelTimer.StartTimer(); }
-        if (spawner) spawner.StartSpawning(1f);
+        if (IsBossLevel(currentLevel))
+        {
+            if (levelTimer) levelTimer.PauseTimer();
+            if (spawner) spawner.StopSpawning();
+            if (pickupSpawner) pickupSpawner.StopSpawning();
 
-        if (pickupSpawner) pickupSpawner.StartSpawning();
+            StartBossFight();
+        }
+        else
+        {
+            if (levelTimer) { levelTimer.ResetTimer(); levelTimer.StartTimer(); }
+            if (spawner) spawner.StartSpawning(1f);
+            if (pickupSpawner) pickupSpawner.StartSpawning();
+        }
+    }
+
+    void StartBossFight()
+    {
+        if (bossInstance) return;
+
+        if (!bossPrefab)
+        {
+            Debug.LogWarning("Boss prefab atanmadı!");
+            return;
+        }
+
+        float halfH = Camera.main ? Camera.main.orthographicSize : 5f;
+        float y = halfH - 1.2f;
+        bossInstance = Instantiate(bossPrefab, new Vector3(0f, y, 0f), Quaternion.identity);
+
+        var bc = bossInstance.GetComponent<BossController>();
+        if (bc) bc.SnapInsideCamera();
+
+        var eh = bossInstance.GetComponent<EnemyHealth>();
+        if (eh) eh.onDeath.AddListener(OnBossKilled);
+    }
+
+    void OnBossKilled()
+    {
+        bossInstance = null;
+        ShowComplete();
     }
 
     public void OnLevelFinished()
@@ -127,6 +181,8 @@ public class LevelManager : MonoBehaviour
     {
         if (spawner) spawner.StopSpawning();
         if (levelTimer) levelTimer.PauseTimer();
+
+        PlayLevelCompleteSfx();
 
         if (completePanel)
         {
@@ -153,6 +209,8 @@ public class LevelManager : MonoBehaviour
 
     public void NextLevel()
     {
+        PlayTapSfx();
+
         if (!waitingContinue) return;
         waitingContinue = false;
 
@@ -207,8 +265,31 @@ public class LevelManager : MonoBehaviour
         }
     }
 
-    public void OnTimerFinished()
+    void PlayTapSfx()
     {
-        OnLevelFinished();
+        if (!tapSfx) return;
+#if UNITY_EDITOR
+        AudioOneShot.Play2D(tapSfx, tapVolume);
+#else
+        AudioSource.PlayClipAtPoint(
+            tapSfx,
+            Camera.main ? Camera.main.transform.position : Vector3.zero,
+            tapVolume
+        );
+#endif
+    }
+
+    void PlayLevelCompleteSfx()
+    {
+        if (!levelCompleteSfx) return;
+#if UNITY_EDITOR
+        AudioOneShot.Play2D(levelCompleteSfx, levelCompleteVolume);
+#else
+        AudioSource.PlayClipAtPoint(
+            levelCompleteSfx,
+            Camera.main ? Camera.main.transform.position : Vector3.zero,
+            levelCompleteVolume
+        );
+#endif
     }
 }

@@ -178,3 +178,6 @@ MonoBehaviour:
   healAmount: 1
   fallSpeed: 2.5
   lifeTime: 12
+  pickupSfx: {fileID: 8300000, guid: 96f4801afdbfae342ae9af17a9365ea9, type: 3}
+  sfxVolume: 0.9
+  pickupVfx: {fileID: 0}

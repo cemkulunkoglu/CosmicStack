@@ -6,6 +6,10 @@ public class GameOverUI : MonoBehaviour
     [Header("Atamalar")]
     public GameObject gameOverPanel;
 
+    [Header("SFX")]
+    public AudioClip gameOverSfx;
+    [Range(0f, 1f)] public float gameOverVolume = 0.9f;
+
     bool shown;
 
     void Awake()
@@ -19,6 +23,19 @@ public class GameOverUI : MonoBehaviour
         if (shown) return;
         shown = true;
 
+        if (gameOverSfx)
+        {
+#if UNITY_EDITOR
+            AudioOneShot.Play2D(gameOverSfx, gameOverVolume);
+#else
+            AudioSource.PlayClipAtPoint(
+                gameOverSfx,
+                Camera.main ? Camera.main.transform.position : Vector3.zero,
+                gameOverVolume
+            );
+#endif
+        }
+
         if (gameOverPanel) gameOverPanel.SetActive(true);
         Time.timeScale = 0f;
     }
@@ -29,8 +46,8 @@ public class GameOverUI : MonoBehaviour
         PlayerPrefs.SetInt("last_level", 1);
         PlayerPrefs.Save();
 
-        var current = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
-        UnityEngine.SceneManagement.SceneManager.LoadScene(current.buildIndex);
+        var current = SceneManager.GetActiveScene();
+        SceneManager.LoadScene(current.buildIndex);
     }
 
     public void GoHome()

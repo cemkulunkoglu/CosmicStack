@@ -14,15 +14,27 @@ public class PlayerHealth : MonoBehaviour
     [Header("UI")]
     public Slider healthBar;
 
+    [Header("Ölüm FX")]
+    public AudioClip deathSfx;
+    [Range(0f, 1f)] public float deathVolume = 0.9f;
+    public GameObject deathVfx;
+
+    [Header("Hit FX")]
+    public AudioClip hitSfx;
+    [Range(0f, 1f)] public float hitVolume = 0.8f;
+
     public int CurrentHealth { get; private set; }
 
     bool invincible;
+    bool dead;
     SpriteRenderer sr;
+    Collider2D col;
 
     void Awake()
     {
         CurrentHealth = maxHealth;
         sr = GetComponent<SpriteRenderer>();
+        col = GetComponent<Collider2D>();
     }
 
     void Start()
@@ -38,20 +50,60 @@ public class PlayerHealth : MonoBehaviour
 
     public void TakeDamage(int dmg)
     {
-        if (invincible || dmg <= 0 || CurrentHealth <= 0) return;
+        if (dead || invincible || dmg <= 0 || CurrentHealth <= 0) return;
 
         CurrentHealth = Mathf.Max(0, CurrentHealth - dmg);
         UpdateHealthUI();
 
+        if (CurrentHealth > 0 && hitSfx)
+        {
+#if UNITY_EDITOR
+            AudioOneShot.Play2D(hitSfx, hitVolume);
+#else
+            AudioSource.PlayClipAtPoint(
+                hitSfx,
+                Camera.main ? Camera.main.transform.position : transform.position,
+                hitVolume
+            );
+#endif
+        }
+
         if (CurrentHealth <= 0)
         {
-            onDeath?.Invoke();
-            gameObject.SetActive(false);
+            Die();
             return;
         }
 
         if (invincibleTime > 0f)
             StartCoroutine(IFrames(invincibleTime));
+    }
+
+    void Die()
+    {
+        if (dead) return;
+        dead = true;
+
+        onDeath?.Invoke();
+
+        if (col) col.enabled = false;
+        if (sr) sr.enabled = false;
+
+        if (deathSfx)
+        {
+#if UNITY_EDITOR
+            AudioOneShot.Play2D(deathSfx, deathVolume);
+#else
+            AudioSource.PlayClipAtPoint(
+                deathSfx,
+                Camera.main ? Camera.main.transform.position : transform.position,
+                deathVolume
+            );
+#endif
+        }
+
+        if (deathVfx) Instantiate(deathVfx, transform.position, Quaternion.identity);
+
+        gameObject.SetActive(false);
     }
 
     System.Collections.IEnumerator IFrames(float time)
@@ -82,7 +134,10 @@ public class PlayerHealth : MonoBehaviour
 
     public void ResetHealth()
     {
+        dead = false;
         CurrentHealth = maxHealth;
+        if (sr) sr.enabled = true;
+        if (col) col.enabled = true;
         UpdateHealthUI();
     }
 
@@ -91,9 +146,7 @@ public class PlayerHealth : MonoBehaviour
         if (amount <= 0 || CurrentHealth <= 0) return;
         int before = CurrentHealth;
         CurrentHealth = Mathf.Min(maxHealth, CurrentHealth + amount);
-
-        if (CurrentHealth != before)
-            UpdateHealthUI();
+        if (CurrentHealth != before) UpdateHealthUI();
     }
 
     public bool IsFull() => CurrentHealth >= maxHealth;

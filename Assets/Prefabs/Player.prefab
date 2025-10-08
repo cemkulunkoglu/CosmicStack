@@ -234,6 +234,11 @@ MonoBehaviour:
         m_CallState: 2
   invincibleTime: 0.2
   healthBar: {fileID: 0}
+  deathSfx: {fileID: 8300000, guid: 5f7c956fa3c1e0343a3172e5a04e5ced, type: 3}
+  deathVolume: 0.9
+  deathVfx: {fileID: 0}
+  hitSfx: {fileID: 8300000, guid: a6816c008abc899408d7f9e46c523443, type: 3}
+  hitVolume: 0.8
 --- !u!50 &2536554152170661789
 Rigidbody2D:
   serializedVersion: 5
@@ -327,6 +332,10 @@ MonoBehaviour:
   yOffset: 0.5
   bulletSpeed: 12
   bulletLife: 3
+  fireSfx: {fileID: 8300000, guid: 1eb3a345fdf4ea14fa0a7731af88fb08, type: 3}
+  fireSfxVariants: []
+  sfxVolume: 0.8
+  pitchRange: {x: 0.98, y: 1.02}
 --- !u!1 &9097864872635925125
 GameObject:
   m_ObjectHideFlags: 0

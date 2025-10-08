@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: -3433670893100608386}
   - component: {fileID: -9137229735544176120}
   - component: {fileID: -6654290556778295909}
+  - component: {fileID: -6040128910039755708}
   m_Layer: 0
   m_Name: Enemy_Green_3
   m_TagString: Untagged
@@ -202,3 +203,27 @@ MonoBehaviour:
   rateMax: 2
   inaccuracyDeg: 6
   aimAtPlayer: 1
+  fireSfx: {fileID: 8300000, guid: f3d8d6754b36262419539cdccf93bbcc, type: 3}
+  fireSfxVariants: []
+  sfxVolume: 0.6
+  pitchRange: {x: 0.98, y: 1.02}
+  sfxSpatialBlend: 0
+--- !u!114 &-6040128910039755708
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6143914410233002262}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3668bdbfa3037ff4583f0ed87560944f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHP: 1
+  explosionSfx: {fileID: 8300000, guid: 5f7c956fa3c1e0343a3172e5a04e5ced, type: 3}
+  explosionVolume: 0.9
+  explosionVfx: {fileID: 0}
+  onDeath:
+    m_PersistentCalls:
+      m_Calls: []

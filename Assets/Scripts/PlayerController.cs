@@ -2,10 +2,16 @@ using UnityEngine;
 
 public class PlayerControllerFull : MonoBehaviour
 {
-    [Header("Hareket Ayarlarý")]
-    public float moveSpeed = 10f;
-    public Vector2 boundaryX = new Vector2(-2.5f, 2.5f);
-    public Vector2 boundaryY = new Vector2(-4f, 4f);
+    [Header("Yatay Hareket")]
+    public float xSpeed = 12f;
+    public Vector2 xBounds = new Vector2(-2.5f, 2.5f);
+
+    [Header("Dikey Limit (küçük bant)")]
+    public bool useStartYAsCenter = true;
+    public float yCenter = -3.2f;
+    public float yRange = 0.6f; 
+    public float yFollowSpeed = 6f;
+    [Range(0f, 1f)] public float yFollowFactor = 0.5f;
 
     [Header("Thruster Ayarlarý")]
     public ParticleSystem[] thrusters;
@@ -13,13 +19,16 @@ public class PlayerControllerFull : MonoBehaviour
     public float minSpeedToFlame = 0.5f;
     public float idleGrace = 0.1f;
 
-    private Vector3 targetPosition;
-    private float lastMoveTime;
-    private bool isDragging;
+    Vector3 targetWorld;
+    float lastMoveTime;
+    bool isDragging;
+    float startY;
 
     void Start()
     {
-        targetPosition = transform.position;
+        startY = transform.position.y;
+        if (useStartYAsCenter) yCenter = startY;
+        targetWorld = transform.position;
         SetFlame(false);
     }
 
@@ -31,35 +40,37 @@ public class PlayerControllerFull : MonoBehaviour
         if (Input.GetMouseButton(0))
         {
             isDragging = true;
-            Vector3 mousePos = Camera.main.ScreenToWorldPoint(
+            targetWorld = Camera.main.ScreenToWorldPoint(
                 new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10f)
             );
-            targetPosition = mousePos;
         }
 #else
         if (Input.touchCount > 0)
         {
             isDragging = true;
-            Touch touch = Input.GetTouch(0);
-            Vector3 touchPos = Camera.main.ScreenToWorldPoint(
+            var touch = Input.GetTouch(0);
+            targetWorld = Camera.main.ScreenToWorldPoint(
                 new Vector3(touch.position.x, touch.position.y, 10f)
             );
-            targetPosition = touchPos;
         }
 #endif
 
-        if (!isDragging)
-            targetPosition = transform.position;
+        float targetX = Mathf.Clamp(targetWorld.x, xBounds.x, xBounds.y);
 
-        Vector3 newPos = isDragging
-            ? Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * moveSpeed)
-            : transform.position;
+        float yMin = yCenter - yRange;
+        float yMax = yCenter + yRange;
 
-        newPos.x = Mathf.Clamp(newPos.x, boundaryX.x, boundaryX.y);
-        newPos.y = Mathf.Clamp(newPos.y, boundaryY.x, boundaryY.y);
-        newPos.z = 0f;
+        float rawY = targetWorld.y;
+        float biasedY = Mathf.Lerp(yCenter, rawY, yFollowFactor);
+        float targetY = Mathf.Clamp(biasedY, yMin, yMax);
 
-        Vector3 delta = newPos - transform.position;
+        Vector3 pos = transform.position;
+        float newX = isDragging ? Mathf.Lerp(pos.x, targetX, Time.deltaTime * xSpeed) : pos.x;
+        float newY = isDragging ? Mathf.Lerp(pos.y, targetY, Time.deltaTime * yFollowSpeed) : pos.y;
+
+        Vector3 newPos = new Vector3(newX, newY, 0f);
+
+        Vector3 delta = newPos - pos;
         float speed = delta.magnitude / Mathf.Max(Time.deltaTime, 1e-5f);
         bool moving = speed > minSpeedToFlame;
         if (moving) lastMoveTime = Time.time;
@@ -76,7 +87,7 @@ public class PlayerControllerFull : MonoBehaviour
         {
             foreach (var ps in thrusters)
             {
-                if (ps == null) continue;
+                if (!ps) continue;
                 var em = ps.emission;
                 em.enabled = on;
                 if (on && !ps.isPlaying) ps.Play();
@@ -88,7 +99,7 @@ public class PlayerControllerFull : MonoBehaviour
         {
             foreach (var sr in thrusterSprites)
             {
-                if (sr == null) continue;
+                if (!sr) continue;
                 sr.enabled = on;
             }
         }
