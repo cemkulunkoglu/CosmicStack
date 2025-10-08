@@ -435,6 +435,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gameOverPanel: {fileID: 1025822417}
+  gameOverSfx: {fileID: 8300000, guid: 7626be85b8968274182d4341d1151f1f, type: 3}
+  gameOverVolume: 0.9
 --- !u!114 &368565987
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1240,11 +1242,11 @@ MonoBehaviour:
   pickupSpawner: {fileID: 1397721969}
   maxLevels: 5
   levelDurations:
-  - 10
-  - 10
-  - 10
-  - 10
-  - 10
+  - 30
+  - 35
+  - 40
+  - 45
+  - 600
   level1Enemies:
   - {fileID: 1382912035317331937, guid: 56c257e9b4b497f41a64c41bbd02b566, type: 3}
   - {fileID: 351460932330083641, guid: 75ee9d5271c40374ea4b1341f52de3b0, type: 3}
@@ -1281,6 +1283,12 @@ MonoBehaviour:
   completePanel: {fileID: 1495907424}
   completeText: {fileID: 1116088682}
   clickAnywhereToContinue: 1
+  tapSfx: {fileID: 8300000, guid: 63b332592cbf6db40865ae26633ded4b, type: 3}
+  tapVolume: 0.8
+  levelCompleteSfx: {fileID: 8300000, guid: bc9e5f6163cad174eb8266a6da816f6b, type: 3}
+  levelCompleteVolume: 0.9
+  bossPrefab: {fileID: 6992312054120817818, guid: 201c3742a5551d84687791718c8a907f, type: 3}
+  bossLevelIndex: 5
 --- !u!4 &751213243
 Transform:
   m_ObjectHideFlags: 0
@@ -3179,6 +3187,10 @@ PrefabInstance:
     - target: {fileID: 4916615862934240249, guid: 7bb28d01d50d7c64db7374cd543fc2b6, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 180
+      objectReference: {fileID: 0}
+    - target: {fileID: 7238473767647045582, guid: 7bb28d01d50d7c64db7374cd543fc2b6, type: 3}
+      propertyPath: yRange
+      value: 0.4
       objectReference: {fileID: 0}
     - target: {fileID: 8790079896453109934, guid: 7bb28d01d50d7c64db7374cd543fc2b6, type: 3}
       propertyPath: m_Name
