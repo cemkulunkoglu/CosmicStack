@@ -13,6 +13,7 @@ public class LevelManager : MonoBehaviour
     public TMP_Text levelLabel;
     public GameObject tapPanel;
     public TMP_Text tapText;
+    public PickupSpawner pickupSpawner;
 
     [Header("Seviye Ayarları")]
     public int maxLevels = 5;
@@ -68,6 +69,8 @@ public class LevelManager : MonoBehaviour
         if (go && go.gameOverPanel && go.gameOverPanel.activeSelf) go.gameOverPanel.SetActive(false);
 
         Time.timeScale = 1f;
+
+        if (pickupSpawner) pickupSpawner.StopSpawning();
     }
 
     GameObject[] GetEnemiesForLevel(int level) => level switch
@@ -110,11 +113,14 @@ public class LevelManager : MonoBehaviour
 
         if (levelTimer) { levelTimer.ResetTimer(); levelTimer.StartTimer(); }
         if (spawner) spawner.StartSpawning(1f);
+
+        if (pickupSpawner) pickupSpawner.StartSpawning();
     }
 
     public void OnLevelFinished()
     {
         ShowComplete();
+        if (pickupSpawner) pickupSpawner.StopSpawning();
     }
 
     void ShowComplete()
@@ -141,6 +147,8 @@ public class LevelManager : MonoBehaviour
                 : $"LEVEL {currentLevel} COMPLETED";
 
         waitingContinue = true;
+
+        if (pickupSpawner) pickupSpawner.StopSpawning();
     }
 
     public void NextLevel()

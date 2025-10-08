@@ -8,7 +8,7 @@ public class PlayerHealth : MonoBehaviour
     public int maxHealth = 4;
     public UnityEvent onDeath;
 
-    [Header("Ýframe (çakýþma sonrasý kýsa dokunulmazlýk)")]
+    [Header("I-frame (çakýþma sonrasý kýsa dokunulmazlýk)")]
     public float invincibleTime = 0.2f;
 
     [Header("UI")]
@@ -27,12 +27,18 @@ public class PlayerHealth : MonoBehaviour
 
     void Start()
     {
+        if (healthBar != null)
+        {
+            healthBar.wholeNumbers = true;
+            healthBar.maxValue = maxHealth;
+            healthBar.value = CurrentHealth;
+        }
         UpdateHealthUI();
     }
 
     public void TakeDamage(int dmg)
     {
-        if (invincible || dmg <= 0) return;
+        if (invincible || dmg <= 0 || CurrentHealth <= 0) return;
 
         CurrentHealth = Mathf.Max(0, CurrentHealth - dmg);
         UpdateHealthUI();
@@ -77,6 +83,19 @@ public class PlayerHealth : MonoBehaviour
     public void ResetHealth()
     {
         CurrentHealth = maxHealth;
+        UpdateHealthUI();
     }
 
+    public void AddHealth(int amount)
+    {
+        if (amount <= 0 || CurrentHealth <= 0) return;
+        int before = CurrentHealth;
+        CurrentHealth = Mathf.Min(maxHealth, CurrentHealth + amount);
+
+        if (CurrentHealth != before)
+            UpdateHealthUI();
+    }
+
+    public bool IsFull() => CurrentHealth >= maxHealth;
+    public float HealthRatio() => maxHealth > 0 ? (float)CurrentHealth / maxHealth : 0f;
 }
